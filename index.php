@@ -40,6 +40,62 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             echo json_encode(array('message' => 'Error retrieving data from the database.'));
         }
     }
+    elseif($_GET['url'] === '/alluser'){
+        try {
+            $table_name = "user"; // Replace with the desired table name
+    
+            $sql = "SELECT * FROM $table_name";
+            $stmt = $conn->prepare($sql);
+            $stmt->execute();
+            $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    
+            // Set the response content type to JSON
+            header('Content-Type: application/json');
+    
+            // Store the JSON data in a variable
+            $json_data = json_encode($data);
+    
+            // Disable output buffering
+            while (ob_get_level()) {
+                ob_end_clean();
+            }
+    
+            // Output the JSON data
+            echo $json_data;
+        } catch (PDOException $e) {
+            // Handle any potential database errors gracefully
+            http_response_code(500);
+            echo json_encode(array('message' => 'Error retrieving data from the database.'));
+        }
+    }
+    elseif($_GET['url'] === '/allreqbook'){
+        try {
+            $table_name = "requestredbook"; // Replace with the desired table name
+    
+            $sql = "SELECT * FROM $table_name";
+            $stmt = $conn->prepare($sql);
+            $stmt->execute();
+            $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    
+            // Set the response content type to JSON
+            header('Content-Type: application/json');
+    
+            // Store the JSON data in a variable
+            $json_data = json_encode($data);
+    
+            // Disable output buffering
+            while (ob_get_level()) {
+                ob_end_clean();
+            }
+    
+            // Output the JSON data
+            echo $json_data;
+        } catch (PDOException $e) {
+            // Handle any potential database errors gracefully
+            http_response_code(500);
+            echo json_encode(array('message' => 'Error retrieving data from the database.'));
+        }
+    }
 }
 
 elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -99,6 +155,36 @@ elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
             echo json_encode(array('message' => 'Error creating record in the database.'));
         }
     }
+    elseif ($_GET['url'] === '/requestedBook') {
+        try {
+            $data = json_decode(file_get_contents('php://input'));
+            $sql = "INSERT INTO requestredbook (id, bookID, bookImg, studentEmail, studentID, studentName, title, author) VALUES (null, :bookID, :bookImg, :studentEmail, :studentID, :studentName, :title, :author)";
+            $stmt = $conn->prepare($sql);
+            $stmt->bindParam(':bookID', $data->bookID);
+            $stmt->bindParam(':bookImg', $data->bookImg);
+            $stmt->bindParam(':studentEmail', $data->studentEmail);
+            $stmt->bindParam(':studentID', $data->studentID);
+            $stmt->bindParam(':studentName', $data->studentName);
+            $stmt->bindParam(':title', $data->title);
+            $stmt->bindParam(':author', $data->author);
+    
+            if ($stmt->execute()) {
+                $response = ['status' => 1, 'message' => 'Record created successfully.'];
+            } else {
+                $response = ['status' => 0, 'message' => 'Failed to create record.'];
+            }
+    
+            // Set the response content type to JSON
+            header('Content-Type: application/json');
+            // Output the JSON response
+            echo json_encode($response);
+        } catch (PDOException $e) {
+            // Handle any potential database errors gracefully
+            http_response_code(500);
+            echo json_encode(array('message' => 'Error creating record in the database.'));
+        }
+    }
+    
     
 }
 ?>
