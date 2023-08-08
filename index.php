@@ -187,49 +187,6 @@ elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
     
     
 }
-// elseif ($_SERVER['REQUEST_METHOD'] === 'PATCH') {
-//     if ($_GET['url'] === '/requestredbook/update') {
-//         // Get the request ID from the URL parameter
-//         $requestId = $_GET['id'];
-        
-//         // Decode the JSON data sent in the request body
-//         $requestPayload = json_decode(file_get_contents('php://input'));
-
-//         // Validate and ensure the required data is provided in the JSON payload
-//         if (isset($requestPayload->status)) {
-//             $newStatus = $requestPayload->status;
-
-//             try {
-//                 $table_name = "requestredbook"; // Replace with the actual table name
-
-//                 // Prepare the SQL query to update the status for the specific request ID
-//                 $sql = "UPDATE $table_name SET status = :newStatus WHERE id = :requestId";
-//                 $stmt = $conn->prepare($sql);
-//                 $stmt->bindParam(':newStatus', $newStatus);
-//                 $stmt->bindParam(':requestId', $requestId);
-
-//                 if ($stmt->execute()) {
-//                     $response = ['status' => 1, 'message' => 'Status updated successfully.'];
-//                 } else {
-//                     $response = ['status' => 0, 'message' => 'Failed to update status.'];
-//                 }
-
-//                 // Set the response content type to JSON
-//                 header('Content-Type: application/json');
-//                 // Output the JSON response
-//                 echo json_encode($response);
-//             } catch (PDOException $e) {
-//                 // Handle any potential database errors gracefully
-//                 http_response_code(500);
-//                 echo json_encode(array('message' => 'Error updating status in the database.'));
-//             }
-//         } else {
-//             // Handle the case when required data is not provided in the JSON payload
-//             http_response_code(400);
-//             echo json_encode(array('message' => 'Missing required data in the request payload.'));
-//         }
-//     }
-// }
 
 elseif ($_SERVER['REQUEST_METHOD'] === 'PATCH') {
     // Get the URL parameter
@@ -281,6 +238,41 @@ elseif ($_SERVER['REQUEST_METHOD'] === 'PATCH') {
         }
     }
 }
+
+elseif ($_SERVER['REQUEST_METHOD'] === 'DELETE') {
+    // Get the URL parameter
+    $url = $_GET['url'];
+
+    if ($url === '/requestredbook/delete') {
+        // Get the ID from the URL parameter
+        $id = $_GET['id'];
+
+        try {
+            $table_name = 'requestredbook'; // Replace with the actual table name
+
+            // Prepare the SQL query to delete the record with the specific ID
+            $sql = "DELETE FROM $table_name WHERE id = :id";
+            $stmt = $conn->prepare($sql);
+            $stmt->bindParam(':id', $id);
+
+            if ($stmt->execute()) {
+                $response = ['status' => 1, 'message' => 'Record deleted successfully.'];
+            } else {
+                $response = ['status' => 0, 'message' => 'Failed to delete record.'];
+            }
+
+            // Set the response content type to JSON
+            header('Content-Type: application/json');
+            // Output the JSON response
+            echo json_encode($response);
+        } catch (PDOException $e) {
+            // Handle any potential database errors gracefully
+            http_response_code(500);
+            echo json_encode(array('message' => 'Error deleting record from the database.'));
+        }
+    }
+}
+
 
 
 
