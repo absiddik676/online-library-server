@@ -237,6 +237,51 @@ elseif ($_SERVER['REQUEST_METHOD'] === 'PATCH') {
             echo json_encode(array('message' => 'Missing required data in the request payload.'));
         }
     }
+    elseif ($url === '/requestredbook/returnStatus' ) {
+        // Get the ID from the URL parameter
+        $id = $_GET['id'];
+        
+        // Decode the JSON data sent in the request body
+        $payload = json_decode(file_get_contents('php://input'));
+    
+        // Validate and ensure the required data is provided in the JSON payload
+        if (isset($payload->returnStatus)) {
+            // Determine the table name based on the URL
+            $table_name = 'requestredbook';
+    
+            // Get the new values from the payload
+            $newStatus = isset($payload->returnStatus) ? $payload->returnStatus : null;
+    
+            try {
+                // Prepare the SQL query to update the fields for the specific ID
+                $sql = "UPDATE $table_name SET returnStatus = :newStatus WHERE id = :id"; // Removed the comma after :newStatus
+                $stmt = $conn->prepare($sql);
+                $stmt->bindParam(':newStatus', $newStatus);
+                $stmt->bindParam(':id', $id);
+    
+                if ($stmt->execute()) {
+                    $response = ['status' => 1, 'message' => 'Data updated successfully.'];
+                } else {
+                    $response = ['status' => 0, 'message' => 'Failed to update data.'];
+                }
+    
+                // Set the response content type to JSON
+                header('Content-Type: application/json');
+                // Output the JSON response
+                echo json_encode($response);
+            } catch (PDOException $e) {
+                // Handle any potential database errors gracefully
+                http_response_code(500);
+                echo json_encode(array('message' => 'Error updating data in the database.'));
+            }
+        } else {
+            // Handle the case when required data is not provided in the JSON payload
+            http_response_code(400);
+            echo json_encode(array('message' => 'Missing required data in the request payload.'));
+        }
+    }
+    
+    
 }
 
 elseif ($_SERVER['REQUEST_METHOD'] === 'DELETE') {
